@@ -1,10 +1,8 @@
-import os
-from pathlib import Path
-
 import numpy as np
 from tqdm import tqdm
 
 from .hp_pdf2md import hp
+from .llm.api import text_formater
 from .ocr.ocr_imgbyimg import ocr_model
 from .order.boxes2order import LayoutLmForReadingOrder, image_layout_detector
 from .others.pdf2imgs import pdf_images_transformer
@@ -15,42 +13,42 @@ class pdf_md_transformer:
         self.pdf_img_transformer = pdf_images_transformer()
         self.image_layout_detecter = image_layout_detector()
         self.reading_order_aranger = LayoutLmForReadingOrder()
+        self.text_formater = text_formater()
         self.ocr_model = ocr_model()
 
     def retrun_md(self, md_path=hp.md_path, is_save=False):
         """
         append the ocred text to a list.
         """
-
         txt_list = []
         types, clips = self.types, self.clips
         with open(md_path, "w") as md:
-            for type, clip in zip(types, clips):
+            for type, clip in tqdm(zip(types, clips), total=len(types), colour="green"):
                 if type not in ("table", "figure"):
                     text, _ = self.ocr_model.predict(clip)
                     if text == []:
-                        print(f"OCR failed.")
+                        pass
                     else:
-                        for t in text:
-                            txt_list.append(f"{t}\n\n")
-                            if is_save:
-                                md.write(f"{t}\n\n")
+                        pull = self.clean(text)
+                        txt_list.append(pull)
+                        if is_save:
+                            md.write(pull)
                 else:
-                    txt_list.append(
-                        f"![{type}](./data/clips/{hp.clips_saved_path})\n\n"
-                    )
+                    img_md = f"![{type}](./data/clips/{hp.clips_saved_path})\n\n"
+                    txt_list.append(img_md)
                     if is_save:
-                        md.write(f"![{type}](./data/clips/{hp.clips_saved_path})\n\n")
+                        md.write(img_md)
+
         if is_save:
             print(f"Markdown file saved at {hp.md_path}")
         else:
             return txt_list
 
-    def clean(self, text: str):
+    def clean(self, text_list):
         """
-        not implemented yet
+        clean the text
         """
-        ...
+        return self.text_formater.post(" ".join(text_list).strip()) + "\n\n"
 
     def predict(self, pdf_path, page_num=None):
         """
