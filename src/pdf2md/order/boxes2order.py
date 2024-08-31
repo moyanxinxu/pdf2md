@@ -20,18 +20,17 @@ class image_layout_detector:
             layout=True,
         )
 
-    def predict(self, img_path):
+    def predict(self, img):
         """
         detect the layout of an image
 
         - inputs:
-            - img_path: the path of the image
+            - img: cv.Mat, the image to be detected
         - return
             - obj_types: the type of the detected objects in the image
             - obj_boxes: the bounding boxes of the detected objects in the image
             - obj_scores: the confidence scores of the detected objects in the image
         """
-        img = cv.imread(img_path)
         result = self.table_engine(img)
         obj_types = []
         obj_boxes = []

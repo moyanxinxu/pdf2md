@@ -9,3 +9,4 @@ clips
 result.md
 tmp_files
 src/llm/data/*
+.vscode

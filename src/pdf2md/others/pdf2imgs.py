@@ -1,6 +1,7 @@
 import os
 
 import fitz
+import numpy as np
 
 from .hp_pdf2imgs import hp
 
@@ -30,6 +31,11 @@ class pdf_images_transformer:
             for page_num in range(pdf.page_count):
                 page = pdf[page_num]
                 image = page.get_pixmap(matrix=fitz.Matrix(zoom_x, zoom_y))
+                image = np.frombuffer(image.samples, dtype=np.uint8).reshape(
+                    image.h, image.w, image.n
+                )
+                image = np.array(image)
+                image = np.ascontiguousarray(image[..., [2, 1, 0]])
                 images.append(image)
         self.images = images
         return images
