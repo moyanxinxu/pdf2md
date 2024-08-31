@@ -1,0 +1,11 @@
+__pycache__
+src/data/images/*
+src/word2md/data/*
+sample
+model
+.DS_Store
+images
+clips
+result.md
+tmp_files
+src/llm/data/*
