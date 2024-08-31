@@ -5,10 +5,16 @@ url = hp.api
 
 
 def md_text_iter(file_path, batch_size=64):
+    """Iterate over the lines of a file with batch_size."""
     with open(file_path, "r") as file:
-        lines = len(file.readlines())
-        for i in range(0, lines, batch_size):
-            yield "".join(file.readlines()[i : i + batch_size])
+        batch = []
+        for line in file:
+            batch.append(line.strip())
+            if len(batch) == batch_size:
+                yield batch
+                batch = []
+        if batch:  # Yield any remaining lines that didn't fill a full batch
+            yield batch
 
 
 for data in md_text_iter("../result.md"):
@@ -17,7 +23,7 @@ for data in md_text_iter("../result.md"):
         "messages": [
             {
                 "role": "user",
-                "content": f"""{hp.prompt}\n{data}""",
+                "content": f"""{hp.prompt}\n{' '.join(data)}""",
             },
         ],
         "stream": hp.stream,
