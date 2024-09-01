@@ -57,3 +57,8 @@ pip install -r requirements.yml
 ![pdf](./assess/pdf.png)
 
 ![markdown](./assess/markdown.png)
+
+### Win平台
+
+1. `winget install ollama`
+2. 其余同上
