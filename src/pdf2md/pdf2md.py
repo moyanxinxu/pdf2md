@@ -30,7 +30,7 @@ class pdf_md_transformer:
         self.reading_order_aranger = LayoutLmForReadingOrder()
         self.ocr_model = ocr_model()
 
-    def retrun_md(self, md_path=hp.md_path, is_save=False):
+    def retrun_md(self, md_path=hp.md_path):
         """
         append the ocred text to a list.
         """
@@ -49,10 +49,7 @@ class pdf_md_transformer:
                     img_md = f"![{type}](./data/clips/{hp.clips_saved_path})\n\n"
                     txt_list.append(img_md)
         self.load_models()
-        if is_save:
-            print(f"Markdown file saved at {hp.md_path}")
-        else:
-            return txt_list
+        return txt_list
 
     def clean(self, text_list):
         """
