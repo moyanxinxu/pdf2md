@@ -12,7 +12,6 @@ def pdf2base64(file):
     if file is None:
         return "从上传PDF文件开始..."
     else:
-        pdf_path = file
         try:
             with open(file, "rb") as f:
                 encoded_pdf = base64.b64encode(f.read()).decode("utf-8")
@@ -28,6 +27,7 @@ def pdf2base64(file):
 def update_markdown(pdf_path):
     types, clips = model.predict(pdf_path)
     text_list = model.retrun_md()
+
     return "\n\n".join(text_list)
 
 

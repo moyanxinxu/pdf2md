@@ -25,6 +25,13 @@ class pdf_images_transformer:
     def split_pdf(self, pdf_path, zoom_x=2, zoom_y=2):
         """
         method to split pdf into images
+
+        - inputs:
+            - pdf_path: str, the path of the pdf file
+            - zoom_x: int, the zoom factor in x direction
+            - zoom_y: int, the zoom factor in y direction
+        - return:
+            - images: list of cv.Mat splited from pdf
         """
         images = []
         with fitz.open(pdf_path) as pdf:
@@ -42,7 +49,11 @@ class pdf_images_transformer:
 
     def save_images(self, images, images_saved_path):
         """
-        method to save images splited form pdf.
+        method to save images splited form pdf
+
+        - inputs:
+            - images: list of cv.Mat, the images to be saved
+            - images_saved_path: str, the path to save the images
         """
         if len(self.images) != 0:
             self.clean_images_saved_path(images_saved_path)
@@ -54,6 +65,11 @@ class pdf_images_transformer:
     def clean_images_saved_path(self, path):
         """
         method to clean images saved path
+
+        - inputs:
+            - path: str, the path to be cleaned
+        - return:
+            - None
         """
         if not os.path.exists(path):
             os.makedirs(path)

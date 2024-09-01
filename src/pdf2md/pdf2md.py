@@ -1,3 +1,4 @@
+import gradio as gr
 import numpy as np
 from tqdm import tqdm
 
@@ -30,36 +31,69 @@ class pdf_md_transformer:
         self.reading_order_aranger = LayoutLmForReadingOrder()
         self.ocr_model = ocr_model()
 
-    def retrun_md(self, md_path=hp.md_path):
+    def retrun_md(self, progress=gr.Progress()):
         """
         append the ocred text to a list.
         """
+        progress(0, desc="generating...", total=len(self.types))
         txt_list = []
         types, clips = self.types, self.clips
-        with open(md_path, "w") as md:
-            for type, clip in tqdm(zip(types, clips), total=len(types), colour="green"):
-                if type not in ("table", "figure"):
-                    text, _ = self.ocr_model.predict(clip)
-                    if text == []:
-                        pass
-                    else:
-                        pull = self.clean(text)
-                        txt_list.append(pull)
+        for type, clip in progress.tqdm(zip(types, clips), total=len(types)):
+            if type not in ("table", "figure"):
+                text, _ = self.ocr_model.predict(clip)
+                if text == []:
+                    pass
                 else:
-                    img_md = f"![{type}](./data/clips/{hp.clips_saved_path})\n\n"
-                    txt_list.append(img_md)
+                    pull = self.clean(text, type)
+                    txt_list.append(pull)
+            else:
+                img_md = f"![{type}]({hp.clips_saved_path})\n\n"
+                txt_list.append(img_md)
         self.load_models()
         return txt_list
 
-    def clean(self, text_list):
+    def clean(self, obj_list, obj_type):
         """
         clean the text
+
+        - inputs:
+            - obj_list: list of str, the text to be cleaned
+            - obj_type: str, the type of the text
+        - return:
+            - text: str, the cleaned text
         """
-        return self.text_formater.clean(" ".join(text_list).strip()) + "\n\n"
+        if obj_type == "text":
+            prompt = hp.text_promp
+        elif obj_type == "title":
+            prompt = hp.title_prompt
+        elif obj_type == "figure_caption":
+            prompt = hp.figure_caption_prompt
+        elif obj_type == "table_caption":
+            prompt = hp.table_caption_prompt
+        elif obj_type == "header":
+            prompt = hp.header_prompt
+        elif obj_type == "footer":
+            prompt = hp.footer_prompt
+        elif obj_type == "reference":
+            prompt = hp.reference_prompt
+        elif obj_type == "equation":
+            prompt = hp.equation_prompt
+        else:
+            prompt = ""
+
+        text = prompt + "\n".join(obj_list).strip()
+        return self.text_formater.clean(text) + "\n\n"
 
     def predict(self, pdf_path, page_num=None):
         """
         predict the text in pdf
+
+        - inputs:
+            - pdf_path: str, the path of the pdf file
+            - page_num: int, the number of pages to be predicted
+        - return:
+            - types: list of str, the types of the objects
+            - clips: list of cv.Mat, the objects
         """
         clips, types, boxes = [], [], []
         images = self.pdf_img_transformer.split_pdf(pdf_path)
