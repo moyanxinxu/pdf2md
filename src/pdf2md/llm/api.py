@@ -1,28 +1,27 @@
-import requests
+import os
+
+import ollama
 
 from .hp_api import hp
 
 
 class text_formater:
     def __init__(self) -> None:
-        self.llm = hp.model
-        self.url = hp.api
+        self.model_name = hp.model
+        self.stream = hp.stream
+        self.llm = self.host(hp.api)
 
-    def header(self, text: str):
-        return {
-            "model": self.llm,
-            "messages": [
+    def host(self, host_address):
+        return ollama.Client(host=host_address)
+
+    def clean(self, text):
+        return self.llm.chat(
+            model=self.model_name,
+            messages=[
                 {
                     "role": "user",
-                    "content": hp.prompt + text,
+                    "content": hp.prompt + " ".join(text).strip(),
                 },
             ],
-            "stream": hp.stream,
-        }
-
-    def post(self, text: str):
-        response = requests.post(self.url, json=self.header(text))
-        if response.status_code == 200:
-            return response.json()["message"]["content"]
-        else:
-            return f"request failed: {response.status_code}"
+            stream=self.stream,
+        )["message"]["content"]

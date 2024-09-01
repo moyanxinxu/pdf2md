@@ -10,10 +10,24 @@ from .others.pdf2imgs import pdf_images_transformer
 
 class pdf_md_transformer:
     def __init__(self) -> None:
+        self.text_formater = text_formater()
+        self.load_models()
+
+    def offload_models(self):
+        """
+        Due to the size of the text_formater, this function try offload other model.
+        """
+        del self.pdf_img_transformer
+        del self.image_layout_detecter
+        del self.reading_order_aranger
+
+    def load_models(self):
+        """
+        After llm cleaned the text, the method will load model again.
+        """
         self.pdf_img_transformer = pdf_images_transformer()
         self.image_layout_detecter = image_layout_detector()
         self.reading_order_aranger = LayoutLmForReadingOrder()
-        self.text_formater = text_formater()
         self.ocr_model = ocr_model()
 
     def retrun_md(self, md_path=hp.md_path, is_save=False):
@@ -31,14 +45,10 @@ class pdf_md_transformer:
                     else:
                         pull = self.clean(text)
                         txt_list.append(pull)
-                        if is_save:
-                            md.write(pull)
                 else:
                     img_md = f"![{type}](./data/clips/{hp.clips_saved_path})\n\n"
                     txt_list.append(img_md)
-                    if is_save:
-                        md.write(img_md)
-
+        self.load_models()
         if is_save:
             print(f"Markdown file saved at {hp.md_path}")
         else:
@@ -48,7 +58,7 @@ class pdf_md_transformer:
         """
         clean the text
         """
-        return self.text_formater.post(" ".join(text_list).strip()) + "\n\n"
+        return self.text_formater.clean(" ".join(text_list).strip()) + "\n\n"
 
     def predict(self, pdf_path, page_num=None):
         """
@@ -70,4 +80,5 @@ class pdf_md_transformer:
                 types.append(type)
         self.types = types
         self.clips = clips
+        self.offload_models()
         return types, clips
