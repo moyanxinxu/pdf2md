@@ -1,5 +1,4 @@
 import base64
-import os
 
 import gradio as gr
 
@@ -45,8 +44,10 @@ with gr.Blocks() as demo:
 
             with gr.Tab(label="转化后"):
                 with gr.Row():
-                    output_md = gr.Markdown(
-                        "从上传PDF文件开始...", show_copy_button=True
+                    output_md = gr.Textbox(
+                        "从上传PDF文件开始...",
+                        show_copy_button=True,
+                        interactive=True,
                     )
 
     input_pdf.change(pdf2base64, inputs=input_pdf, outputs=output_pdf)

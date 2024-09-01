@@ -51,4 +51,9 @@ pip install -r requirements.yml
 1. `brew install ollama`
 2. `ollama pull xxxx`, 在这里使用`ollama pull gemma:7b`
 3. `ollama serve`启动服务
-4. `python xxx/src/app.py`
+4. `cd xxx/src/`
+5. `python app.py`
+
+![pdf](./assess/pdf.png)
+
+![markdown](./assess/markdown.png)
