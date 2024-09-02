@@ -106,7 +106,12 @@ class pdf_md_transformer:
             # aranged_scores = np.array(obj_scores)[obj_orders].tolist()
 
             for type, box in zip(aranged_types, aranged_boxes):
-                clip = img[box[1] : box[3], box[0] : box[2]]
+                clip = np.zeros_like(img)
+
+                # TODO 非检测区域都设置为0,期望这样做能够提高ocr准确率,实际效果目测是提升了很多.
+                clip[box[1] : box[3], box[0] : box[2]] = img[
+                    box[1] : box[3], box[0] : box[2]
+                ]
                 clips.append(clip)
                 types.append(type)
         self.types = types

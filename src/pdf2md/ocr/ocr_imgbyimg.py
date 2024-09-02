@@ -22,7 +22,7 @@ class ocr_model:
         """
         if len(img.shape) == 3:
             img = cv.cvtColor(img.copy(), cv.COLOR_BGR2GRAY)
-        ret, binary_img = cv.threshold(img, hp.threshold, 255, cv.THRESH_BINARY)
+        _, binary_img = cv.threshold(img, hp.threshold, 255, cv.THRESH_BINARY)
         return binary_img
 
     def predict(self, img):
