@@ -27,8 +27,9 @@ pip install -r requirements.yml
   - pdf2md.py: pdf与markdown文件转换器
   - hp_pdf2md.py: 该文件夹下代码超参数
   - llm/: 用于格式化ocr后的文本的大模型
-    - hp_api.py: ollama配置超参数
-    - api.py: ollama模型请求接口
+    - hp_api.py: 大模型接口配置超参数
+    - ollama.py: ollama模型请求接口
+    - gemini.py: gemini模型请求接口
   - word2md/: word和markdown转换模块
     - word2md.py: word和markdown双向转换器
   - pdf2md/: pdf与markdown文件转化器源码

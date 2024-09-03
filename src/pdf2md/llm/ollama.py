@@ -3,14 +3,15 @@ import ollama
 from .hp_api import hp
 
 
-class text_formater:
+class ollama_text_formater:
     def __init__(self) -> None:
         """
         Initialize the text_formater class
         """
-        self.model_name = hp.model
-        self.stream = hp.stream
-        self.llm = self.host(hp.api)
+        self.platform = "ollama"
+        self.model_name = hp.ollama_model_name
+        self.stream = hp.ollama_stream
+        self.llm = self.host(hp.ollama_api)
 
     def host(self, host_address):
         """

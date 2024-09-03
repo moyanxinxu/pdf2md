@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 
 from .hp_pdf2md import hp
-from .llm.api import text_formater
+from .llm import gemini_text_formater, ollama_text_formater
 from .ocr.ocr_imgbyimg import ocr_model
 from .order.boxes2order import LayoutLmForReadingOrder, image_layout_detector
 from .others.pdf2imgs import pdf_images_transformer
@@ -11,7 +11,7 @@ from .others.pdf2imgs import pdf_images_transformer
 
 class pdf_md_transformer:
     def __init__(self) -> None:
-        self.text_formater = text_formater()
+        self.text_formater = self.select_model(hp.platform)
         self.load_models()
 
     def offload_models(self):
@@ -30,6 +30,22 @@ class pdf_md_transformer:
         self.image_layout_detecter = image_layout_detector()
         self.reading_order_aranger = LayoutLmForReadingOrder()
         self.ocr_model = ocr_model()
+
+    def select_model(self, platform):
+        """
+        select the text formater model
+
+        - input:
+            - platform (str), the platform of the model
+        - return:
+            - text_formater: the text formater model
+        """
+        if platform == "gemini":
+            return gemini_text_formater()
+        elif platform == "ollama":
+            return ollama_text_formater()
+        else:
+            raise ValueError(f"invalid platform, selcet one of {hp.valid_platforms}")
 
     def retrun_md(self, progress=gr.Progress()):
         """
