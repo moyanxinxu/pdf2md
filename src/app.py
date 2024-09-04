@@ -6,7 +6,6 @@ from pdf2md import pdf_md_transformer
 
 model = pdf_md_transformer()
 
-
 def pdf2base64(file):
     """将PDF文件转换为base64编码的字符串。"""
     if file is None:

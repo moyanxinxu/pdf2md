@@ -1,7 +1,8 @@
 import cv2 as cv
 import numpy as np
 from paddleocr import PPStructure
-from transformers import LayoutLMv3ForTokenClassification
+
+from mindnlp.transformers import LayoutLMv3ForTokenClassification
 
 from .aux import boxes2inputs, parse_logits, prepare_inputs
 from .hp_order import hp
@@ -87,7 +88,7 @@ class LayoutLmForReadingOrder:
         inputs = self.scale(boxes)
         inputs = boxes2inputs(inputs)
         inputs = prepare_inputs(inputs, self.model)
-        logits = self.model(**inputs).logits.cpu().detach().squeeze(0)
+        logits = self.model(**inputs).logits.squeeze(0)
         orders = parse_logits(logits, len(boxes))
         return orders
 

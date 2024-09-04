@@ -2,8 +2,10 @@
 from collections import defaultdict
 from typing import Dict, List
 
-import torch
-from transformers import LayoutLMv3ForTokenClassification
+import mindspore
+from mindspore import ops
+
+from mindnlp.transformers import LayoutLMv3ForTokenClassification
 
 MAX_LEN = 510
 CLS_TOKEN_ID = 0
@@ -12,7 +14,8 @@ EOS_TOKEN_ID = 2
 
 
 class DataCollator:
-    def __call__(self, features: List[dict]) -> Dict[str, torch.Tensor]:
+
+    def __call__(self, features: List[dict]) -> Dict[str, mindspore.Tensor]:
         bbox = []
         labels = []
         input_ids = []
@@ -52,10 +55,10 @@ class DataCollator:
             )
 
         ret = {
-            "bbox": torch.tensor(bbox),
-            "attention_mask": torch.tensor(attention_mask),
-            "labels": torch.tensor(labels),
-            "input_ids": torch.tensor(input_ids),
+            "bbox": mindspore.tensor(bbox),
+            "attention_mask": mindspore.tensor(attention_mask),
+            "labels": mindspore.tensor(labels),
+            "input_ids": mindspore.tensor(input_ids),
         }
         # set label > MAX_LEN to -100, because original labels may be > MAX_LEN
         ret["labels"][ret["labels"] > MAX_LEN] = -100
@@ -64,30 +67,30 @@ class DataCollator:
         return ret
 
 
-def boxes2inputs(boxes: List[List[int]]) -> Dict[str, torch.Tensor]:
+def boxes2inputs(boxes: List[List[int]]) -> Dict[str, mindspore.Tensor]:
     bbox = [[0, 0, 0, 0]] + boxes + [[0, 0, 0, 0]]
     input_ids = [CLS_TOKEN_ID] + [UNK_TOKEN_ID] * len(boxes) + [EOS_TOKEN_ID]
     attention_mask = [1] + [1] * len(boxes) + [1]
     return {
-        "bbox": torch.tensor([bbox]),
-        "attention_mask": torch.tensor([attention_mask]),
-        "input_ids": torch.tensor([input_ids]),
+        "bbox": mindspore.tensor([bbox]),
+        "attention_mask": mindspore.tensor([attention_mask]),
+        "input_ids": mindspore.tensor([input_ids]),
     }
 
 
 def prepare_inputs(
-    inputs: Dict[str, torch.Tensor], model: LayoutLMv3ForTokenClassification
-) -> Dict[str, torch.Tensor]:
+    inputs: Dict[str, mindspore.Tensor], model: LayoutLMv3ForTokenClassification
+) -> Dict[str, mindspore.Tensor]:
     ret = {}
     for k, v in inputs.items():
-        v = v.to(model.device)
-        if torch.is_floating_point(v):
+        # v = v.to(model.device)
+        if ops.is_floating_point(v):
             v = v.to(model.dtype)
         ret[k] = v
     return ret
 
 
-def parse_logits(logits: torch.Tensor, length: int) -> List[int]:
+def parse_logits(logits: mindspore.Tensor, length: int) -> List[int]:
     """
     parse logits to orders
 
