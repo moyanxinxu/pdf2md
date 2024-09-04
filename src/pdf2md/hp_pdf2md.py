@@ -53,4 +53,7 @@ class hp:
         + "the following text is an equation, please correct it by latex or markdown:\n"
     )
 
-    text_promp = comment_prompt + "the following text is a text, please correct it:\n"
+    text_promp = (
+        comment_prompt
+        + "the following text is a text from **same paragraph**, please correct it:\n"
+    )

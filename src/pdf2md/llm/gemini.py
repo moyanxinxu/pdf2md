@@ -54,7 +54,9 @@ class gemini_text_formater:
         - return:
             - genai.GenerativeModel: the model object
         """
-        genai.configure(api_key=self.api_key)
+
+        # add transport="rest" to fix the proxy and region error
+        genai.configure(api_key=self.api_key, transport="rest")
         if self.is_model_valid(model_name):
             return genai.GenerativeModel(model_name)
         else:

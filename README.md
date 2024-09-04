@@ -47,19 +47,22 @@ pip install -r requirements.yml
 
 ## 使用方法
 
-### Mac平台
+### ollama
 
-1. `brew install ollama`
-2. `ollama pull xxxx`, 在这里使用`ollama pull gemma:7b`
-3. `ollama serve`启动服务
-4. `cd xxx/src/`
-5. `python app.py`
+1. 启动ollama服务
+2. 在`hp_api.py`修改`ollama_model_name`,`ollama_stream`和`ollama_api`
+3. `cd xxx/src/`
+4. `python app.py`
+
+### gemini
+
+1. 在`hp_api.py`修改`gemini_model_name`,`gemini_api_key`和`gemini_stream`
+2. `cd xxx/src/`
+3. `python app.py`
+
+## demo
 
 ![pdf](./assess/pdf.png)
 
-![markdown](./assess/markdown.png)
-
-### Win平台
-
-1. `winget install ollama`
-2. 其余同上
+![one_col](./assess/one_col.png)
+![two_col](./assess/two_col.png)

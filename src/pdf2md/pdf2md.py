@@ -47,14 +47,13 @@ class pdf_md_transformer:
         else:
             raise ValueError(f"invalid platform, selcet one of {hp.valid_platforms}")
 
-    def retrun_md(self, progress=gr.Progress()):
+    def retrun_md(self):
         """
         append the ocred text to a list.
         """
-        progress(0, desc="generating...", total=len(self.types))
         txt_list = []
         types, clips = self.types, self.clips
-        for type, clip in progress.tqdm(zip(types, clips), total=len(types)):
+        for type, clip in tqdm(zip(types, clips), total=len(types)):
             if type not in ("table", "figure"):
                 text, _ = self.ocr_model.predict(clip)
                 if text == []:
@@ -98,7 +97,7 @@ class pdf_md_transformer:
             prompt = ""
 
         text = prompt + "\n".join(obj_list).strip()
-        return self.text_formater.clean(text) + "\n\n"
+        return self.text_formater.clean(text)
 
     def predict(self, pdf_path, page_num=None):
         """

@@ -36,22 +36,20 @@ with gr.Blocks() as demo:
         with gr.Column():
             output_pdf = gr.HTML("从上传PDF文件开始...")
         with gr.Column():
-            with gr.Tab(label="传递PDF文件"):
-                input_pdf = gr.File(label="上传PDF文件")
-                explorer = gr.FileExplorer(
-                    label="选择PDF文件", file_count="single", glob="*.pdf"
-                )
+            input_pdf = gr.File(label="上传PDF文件")
 
-            with gr.Tab(label="转化后"):
-                with gr.Row():
-                    output_md = gr.Textbox(
-                        "从上传PDF文件开始...",
-                        show_copy_button=True,
-                        interactive=True,
-                    )
+            transform_btn = gr.Button("开始转换")
+
+            output_md = gr.TextArea(
+                placeholder="从上传PDF文件开始...",
+                show_copy_button=True,
+                interactive=True,
+                label="转换结果",
+            )
 
     input_pdf.change(pdf2base64, inputs=input_pdf, outputs=output_pdf)
-    explorer.change(pdf2base64, inputs=explorer, outputs=output_pdf)
-    input_pdf.change(update_markdown, inputs=input_pdf, outputs=output_md)
-    explorer.change(update_markdown, inputs=explorer, outputs=output_md)
+
+    # update the markdown text
+    transform_btn.click(update_markdown, inputs=input_pdf, outputs=output_md)
+
 demo.launch()
