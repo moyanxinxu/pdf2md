@@ -62,13 +62,57 @@ class gemini_text_formater:
         else:
             raise ValueError(f"invalid model name, select one of {self.valid_models}")
 
-    def clean(self, text):
+    def get_prompt(self, task_type, **kwargs):
         """
-        Clean the text
-        - inputs:
-            - text (str): the text to be cleaned
+        Get the task prompt
+        - input:
+            - task_type (str): the type of the task
+            - kwargs (dict): the task arguments
         - return:
-            - text (str): the cleaned text
+            - prompt (str): the task prompt
+        """
+        if task_type == "clean_text":
+            obj_type = kwargs.get("obj_type", None)
+            if obj_type == "text":
+                prompt = hp.text_promp
+            elif obj_type == "title":
+                prompt = hp.title_prompt
+            elif obj_type == "figure_caption":
+                prompt = hp.figure_caption_prompt
+            elif obj_type == "table_caption":
+                prompt = hp.table_caption_prompt
+            elif obj_type == "header":
+                prompt = hp.header_prompt
+            elif obj_type == "footer":
+                prompt = hp.footer_prompt
+            elif obj_type == "reference":
+                prompt = hp.reference_prompt
+            elif obj_type == "equation":
+                prompt = hp.equation_prompt
+            else:
+                prompt = ""
+        elif task_type == "translate":
+            current_language = kwargs.get("current_language", None)
+            target_language = kwargs.get("target_language", None)
+
+            con1 = current_language != target_language
+            con2 = current_language != None and target_language != None
+
+            if con1 and con2:
+                prompt = hp.translate_prompt.format(
+                    current_language=current_language, target_language=target_language
+                )
+        else:
+            raise ValueError(f"invalid task_type, select one of {hp.valid_obj_tasks}")
+        return prompt
+
+    def chat(self, text):
+        """
+        chat with the llm model
+        - inputs:
+            - text (str): the text to chat with model
+        - return:
+            - text (str): the response from the model with markdown
         """
 
         text = self.model.generate_content(text)

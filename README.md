@@ -62,7 +62,6 @@ pip install -r requirements.yml
 
 ## demo
 
-![pdf](./assess/pdf.png)
+![pdf2md](./assess/pdf2md.png)
 
-![one_col](./assess/one_col.png)
-![two_col](./assess/two_col.png)
+![translate](./assess/translate.png)

@@ -29,31 +29,4 @@ class hp:
         "reference": 8,
         "equation": 9,
     }
-    comment_prompt = "If you are a paper writing assistant, When answering, do not add anything other than the original content."
-    title_prompt = (
-        comment_prompt + "the following text is a title, please correct it:\n ##"
-    )
-    figure_caption_prompt = (
-        comment_prompt + "the following text is a figure caption, please correct it:\n"
-    )
-    table_caption_prompt = (
-        comment_prompt + "the following text is a table caption, please correct it:\n"
-    )
-    header_prompt = (
-        comment_prompt + "the following text is a header, please correct it:\n"
-    )
-    footer_prompt = (
-        comment_prompt + "the following text is a footer, please correct it:\n"
-    )
-    reference_prompt = (
-        comment_prompt + "the following text is a reference, please correct it:\n"
-    )
-    equation_prompt = (
-        comment_prompt
-        + "the following text is an equation, please correct it by latex or markdown:\n"
-    )
-
-    text_promp = (
-        comment_prompt
-        + "the following text is a text from **same paragraph**, please correct it:\n"
-    )
+    valid_obj_tasks = ["clean_text", "translate"]

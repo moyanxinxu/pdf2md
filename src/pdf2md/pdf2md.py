@@ -1,4 +1,3 @@
-import gradio as gr
 import numpy as np
 from tqdm import tqdm
 
@@ -11,7 +10,7 @@ from .others.pdf2imgs import pdf_images_transformer
 
 class pdf_md_transformer:
     def __init__(self) -> None:
-        self.text_formater = self.select_model(hp.platform)
+        self.text_formater = self.get_model(hp.platform)
         self.load_models()
 
     def offload_models(self):
@@ -31,7 +30,7 @@ class pdf_md_transformer:
         self.reading_order_aranger = LayoutLmForReadingOrder()
         self.ocr_model = ocr_model()
 
-    def select_model(self, platform):
+    def get_model(self, platform):
         """
         select the text formater model
 
@@ -47,19 +46,22 @@ class pdf_md_transformer:
         else:
             raise ValueError(f"invalid platform, selcet one of {hp.valid_platforms}")
 
-    def retrun_md(self):
+    def clean_text(self, types, clips):
         """
         append the ocred text to a list.
         """
         txt_list = []
-        types, clips = self.types, self.clips
-        for type, clip in tqdm(zip(types, clips), total=len(types)):
+        for type, clip in tqdm(zip(types, clips), total=len(types), colour="green"):
             if type not in ("table", "figure"):
                 text, _ = self.ocr_model.predict(clip)
                 if text == []:
                     pass
                 else:
-                    pull = self.clean(text, type)
+                    prompt = self.text_formater.get_prompt(
+                        task_type="clean_text",
+                        obj_type=type,
+                    )
+                    pull = self.text_formater.chat(prompt + "\n".join(text).strip())
                     txt_list.append(pull)
             else:
                 img_md = f"![{type}]({hp.clips_saved_path})\n\n"
@@ -67,37 +69,23 @@ class pdf_md_transformer:
         self.load_models()
         return txt_list
 
-    def clean(self, obj_list, obj_type):
+    def translate(self, current_language, target_language, text):
         """
-        clean the text
-
-        - inputs:
-            - obj_list: list of str, the text to be cleaned
-            - obj_type: str, the type of the text
+        translate the text
+        - input:
+            - current_language: str, the current language
+            - target_language: str, the target language
+            - text: str, the text to be translated
         - return:
-            - text: str, the cleaned text
+            - pull: str, the translated text
         """
-        if obj_type == "text":
-            prompt = hp.text_promp
-        elif obj_type == "title":
-            prompt = hp.title_prompt
-        elif obj_type == "figure_caption":
-            prompt = hp.figure_caption_prompt
-        elif obj_type == "table_caption":
-            prompt = hp.table_caption_prompt
-        elif obj_type == "header":
-            prompt = hp.header_prompt
-        elif obj_type == "footer":
-            prompt = hp.footer_prompt
-        elif obj_type == "reference":
-            prompt = hp.reference_prompt
-        elif obj_type == "equation":
-            prompt = hp.equation_prompt
-        else:
-            prompt = ""
-
-        text = prompt + "\n".join(obj_list).strip()
-        return self.text_formater.clean(text)
+        prompt = self.text_formater.get_prompt(
+            task_type="translate",
+            current_language=current_language,
+            target_language=target_language,
+        )
+        pull = self.text_formater.chat(prompt + text)
+        return pull
 
     def predict(self, pdf_path, page_num=None):
         """
@@ -110,7 +98,7 @@ class pdf_md_transformer:
             - types: list of str, the types of the objects
             - clips: list of cv.Mat, the objects
         """
-        clips, types, boxes = [], [], []
+        clips, types, _ = [], [], []
         images = self.pdf_img_transformer.split_pdf(pdf_path)
         for img in tqdm(images[:page_num], colour="green"):
             obj_types, obj_boxes, _ = self.image_layout_detecter.predict(img)

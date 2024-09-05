@@ -26,9 +26,13 @@ def pdf2base64(file):
 
 def update_markdown(pdf_path):
     types, clips = model.predict(pdf_path)
-    text_list = model.retrun_md()
+    text_list = model.clean_text(types, clips)
 
     return "\n\n".join(text_list)
+
+
+def translate(current_language, target_language, text):
+    return model.translate(current_language, target_language, text)
 
 
 with gr.Blocks() as demo:
@@ -36,20 +40,38 @@ with gr.Blocks() as demo:
         with gr.Column():
             output_pdf = gr.HTML("从上传PDF文件开始...")
         with gr.Column():
-            input_pdf = gr.File(label="上传PDF文件")
+            with gr.Tab(label="PDF to Markdown"):
+                input_pdf = gr.File(label="上传PDF文件")
 
-            transform_btn = gr.Button("开始转换")
-
-            output_md = gr.TextArea(
-                placeholder="从上传PDF文件开始...",
-                show_copy_button=True,
-                interactive=True,
-                label="转换结果",
-            )
+                output_md = gr.TextArea(
+                    placeholder="从上传PDF文件开始...",
+                    show_copy_button=True,
+                    interactive=True,
+                    label="转换结果",
+                )
+                transform_btn = gr.Button("开始转换")
+            with gr.Tab(label="翻译"):
+                with gr.Row():
+                    current_dropbox = gr.Dropdown(
+                        ["en", "zh"],
+                        value="en",
+                        label="当前语言",
+                    )
+                    target_dropbox = gr.Dropdown(
+                        ["en", "zh"], value="zh", label="目标语言"
+                    )
+                input_text = gr.TextArea(label="输入文本")
+                output_text = gr.TextArea(label="翻译结果")
+                translate_btn = gr.Button("开始翻译")
 
     input_pdf.change(pdf2base64, inputs=input_pdf, outputs=output_pdf)
 
     # update the markdown text
     transform_btn.click(update_markdown, inputs=input_pdf, outputs=output_md)
+    translate_btn.click(
+        translate,
+        inputs=[current_dropbox, target_dropbox, input_text],
+        outputs=output_text,
+    )
 
 demo.launch()
